@@ -18,8 +18,15 @@ class HTMLParser():
                 if len(data1) > 0:
                     self.chapterTitle = "Chương " + str(data1[0].contents[-1])
                 # print(self.metaData)
+
+            #get title of book
+            self.title = "UnKnown"
+            titleData = BS(content, "html.parser").find_all(name="a", attrs={"class": "truyen-title"})
+            if len(titleData) > 0:
+                self.title = titleData[-1].text
+            # check if this is the final chapter
             eOB = BS(content, "html.parser").find_all(name="a", attrs={"class":"btn btn-success disabled",
-                                                                       "id": "next_chap"})
+                                                                     "id": "next_chap"})
             if len(eOB) > 0:
                 self.endOfBook = True
             else:
@@ -27,6 +34,8 @@ class HTMLParser():
         except:
             self.endOfBook = True
             print("Cannot read content from URL")
+
+
 
 
 

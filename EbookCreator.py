@@ -6,14 +6,28 @@ import xml.etree.ElementTree as ET
 
 
 class Ebook():
-    def __init__(self, title="Phàm Nhân Tu Tiên 2", link="https://truyenfull.vn/pham-nhan-tu-tien-chi-tien-gioi-thien-pham-nhan-tu-tien-2/chuong-", ebookName=""):
-        self.title = title
-        self.link = link
-        self.ebookName = ebookName
+    def __init__(self, link="https://truyenfull.vn/pham-nhan-tu-tien-chi-tien-gioi-thien-pham-nhan-tu-tien-2/chuong-", ebookName=""):
+        self.link = link+'chuong-'
+        html = HTMLParser(link=link, chapter=1)
+        self.title = str(html.title)
+        if ebookName == "":
+            import unicodedata
+            self.ebookName = unicodedata.normalize('NFKD', self.title).encode('ascii', 'ignore').decode("utf-8") .replace(" ", "")
+
+        else:
+            self.ebookName = ebookName
+
+    def run1Hit(self):
+        import os
+        exists = os.path.isfile('%s.epub'%self.ebookName)
+        if exists:
+            self.addMoreChapters()
+        else:
+            self.createEbook()
+
+    # Keep presets
 
     def addMoreChapters(self, toChapter=0):
-        if toChapter==0:
-            toChapter = np.inf
         try:
             book = epub.read_epub("%s.epub"%self.ebookName)
             chapter = len(book.spine)
@@ -23,6 +37,7 @@ class Ebook():
             html = HTMLParser(link=self.link, chapter=chapter)
             if toChapter == 0:
                 toChapter = np.inf
+
             # create chapters
             c = epub.EpubHtml(title=html.chapterTitle, file_name='chap_%d.xhtml' % chapter)
             c.set_content(u'<html><body><h1>%s</h1>%s</body></html>' % (html.chapterTitle, html.metaData))
@@ -63,7 +78,7 @@ class Ebook():
 
                 chapter = chapter + 1
 
-            epub.write_epub("%s_%d.epub" % (self.ebookName, toChapter), book)
+            epub.write_epub("%s.epub" % (self.ebookName), book)
 
         except:
             print("Cannot read Ebook")
@@ -71,7 +86,6 @@ class Ebook():
 
     def createEbook(self, toChapter=0, fromChapter=1):
         book = epub.EpubBook()
-        book.set_title(self.title)
         chapter = fromChapter
         book.spine = ['nav']
         # define CSS style
@@ -82,22 +96,11 @@ class Ebook():
         book.add_item(nav_css)
 
         html = HTMLParser(link=self.link, chapter=chapter)
+        book.set_title(html.title)
         if toChapter == 0:
             toChapter = np.inf
-        # create chapters
-        c = epub.EpubHtml(title=html.chapterTitle, file_name='chap_%d.xhtml' % chapter)
-        c.set_content(u'<html><body><h1>%s</h1>%s</body></html>' % (html.chapterTitle, html.metaData))
-        # adding chapter to the book
-        book.toc.append(c)
-
-        print("Chapter %d" % chapter)
-        book.add_item(c)
-        # basic spine
-        book.spine.append(c)
-        chapter = chapter + 1
 
         while(not html.endOfBook) and (chapter <= toChapter):
-            html = HTMLParser(link=self.link, chapter=chapter)
             # create chapters
             c = epub.EpubHtml(title=html.chapterTitle, file_name='chap_%d.xhtml'%chapter)
             c.set_content(u'<html><body><h1>%s</h1>%s</body></html>' % (html.chapterTitle,html.metaData))
@@ -109,22 +112,22 @@ class Ebook():
             # basic spine
             book.spine.append(c)
             chapter = chapter + 1
+            html = HTMLParser(link=self.link, chapter=chapter)
 
         # add default NCX and Nav file
         book.add_item(epub.EpubNcx())
         book.add_item(epub.EpubNav())
-        epub.write_epub("%s_%d.epub" % (self.ebookName, toChapter), book)
+        epub.write_epub("%s.epub" % (self.ebookName), book)
 
 
 def main():
-    fromChapter = 1
-    toChapter = 757
-    ebookName = "PhamNhanTuTien2_1_0"
-    title = "Phàm Nhân Tu Tiên 2"
-    link = "https://truyenfull.vn/pham-nhan-tu-tien-chi-tien-gioi-thien-pham-nhan-tu-tien-2/chuong-"
-    book = Ebook(title=title, link=link, ebookName=ebookName)
+    fromChapter = 0
+    toChapter = 0
+    link = "https://truyenfull.vn/pham-nhan-tu-tien-chi-tien-gioi-thien-pham-nhan-tu-tien-2/"
+    book = Ebook(link=link)
     # book.createEbook(toChapter=toChapter, fromChapter=fromChapter)
-    book.addMoreChapters(toChapter=toChapter)
+    # book.addMoreChapters(toChapter=toChapter)
+    book.run1Hit()
 
 if __name__ == '__main__':
     main()

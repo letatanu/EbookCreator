@@ -99,18 +99,20 @@ class Ebook():
         book.set_title(html.title)
         if toChapter == 0:
             toChapter = np.inf
-
-        while(not html.endOfBook) and (chapter <= toChapter):
+        while chapter <= toChapter:
+            if html.Error:
+                break
             # create chapters
             c = epub.EpubHtml(title=html.chapterTitle, file_name='chap_%d.xhtml'%chapter)
             c.set_content(u'<html><body><h1>%s</h1>%s</body></html>' % (html.chapterTitle,html.metaData))
             #adding chapter to the book
             book.toc.append(c)
-
-            print("Chapter %d"%chapter)
             book.add_item(c)
             # basic spine
             book.spine.append(c)
+            print("Chapter %d" % chapter)
+            if html.endOfBook:
+                break
             chapter = chapter + 1
             html = HTMLParser(link=self.link, chapter=chapter)
 

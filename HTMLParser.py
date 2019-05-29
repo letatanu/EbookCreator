@@ -6,6 +6,7 @@ class HTMLParser():
         self.link = link
         self.chapter = chapter
         self.endOfBook = False
+        self.Error = False
         try:
             response = reader.urlopen(self.link+str(self.chapter))
             content = response.read().decode("utf8")
@@ -32,7 +33,7 @@ class HTMLParser():
             else:
                 self.endOfBook = False
         except:
-            self.endOfBook = True
+            self.Error = True
             print("Cannot read content from URL")
 
 

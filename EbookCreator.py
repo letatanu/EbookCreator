@@ -8,7 +8,7 @@ import xml.etree.ElementTree as ET
 class Ebook():
     def __init__(self, link="https://truyenfull.vn/pham-nhan-tu-tien-chi-tien-gioi-thien-pham-nhan-tu-tien-2/chuong-", ebookName=""):
         self.link = link+'chuong-'
-        html = HTMLParser(link=link, chapter=1)
+        html = HTMLParser(link=self.link, chapter=1)
         self.title = str(html.title)
         if ebookName == "":
             import unicodedata
@@ -123,7 +123,7 @@ class Ebook():
 def main():
     fromChapter = 0
     toChapter = 0
-    link = "https://truyenfull.vn/pham-nhan-tu-tien-chi-tien-gioi-thien-pham-nhan-tu-tien-2/"
+    link = "https://truyenfull.vn/mao-son-troc-quy-nhan/"
     book = Ebook(link=link)
     # book.createEbook(toChapter=toChapter, fromChapter=fromChapter)
     # book.addMoreChapters(toChapter=toChapter)

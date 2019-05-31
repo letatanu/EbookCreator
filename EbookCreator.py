@@ -38,26 +38,25 @@ class Ebook():
             if toChapter == 0:
                 toChapter = np.inf
 
-            # create chapters
-            c = epub.EpubHtml(title=html.chapterTitle, file_name='chap_%d.xhtml' % chapter)
-            c.set_content(u'<html><body><h1>%s</h1>%s</body></html>' % (html.chapterTitle, html.metaData))
-            c.id = "chapter_%d"%(chapter-1)
-            # adding chapter to the book
-            book.toc.append(c)
-            # modify toc and nav content
-            newChapterTOC = "<navPoint id=\"chapter_%d\"><navLabel><text>%s​</text></navLabel><content src=\"chap_%d.xhtml\"/></navPoint></navMap>"% (chapter, html.chapterTitle, chapter)
-            toc.content =  str(toc.content).replace("</navMap>", newChapterTOC)
+            # # create chapters
+            # c = epub.EpubHtml(title=html.chapterTitle, file_name='chap_%d.xhtml' % chapter)
+            # c.set_content(u'<html><body><h1>%s</h1>%s</body></html>' % (html.chapterTitle, html.metaData))
+            # c.id = "chapter_%d"%(chapter-1)
+            # # adding chapter to the book
+            # book.toc.append(c)
+            # # modify toc and nav content
+            # newChapterTOC = "<navPoint id=\"chapter_%d\"><navLabel><text>%s​</text></navLabel><content src=\"chap_%d.xhtml\"/></navPoint></navMap>"% (chapter, html.chapterTitle, chapter)
+            # toc.content =  str(toc.content).replace("</navMap>", newChapterTOC)
+            #
+            # print("Chapter %d" % chapter)
+            # book.add_item(c)
+            # # basic spine
+            # book.spine.append(c)
+            # newNav = "<li><a href=\"chap_%d.xhtml\">%s​</a></li></ol>"%(chapter, html.chapterTitle)
+            # nav.content = str(nav.content).replace("</ol>", newNav)
+            # chapter = chapter + 1
 
-            print("Chapter %d" % chapter)
-            book.add_item(c)
-            # basic spine
-            book.spine.append(c)
-            newNav = "<li><a href=\"chap_%d.xhtml\">%s​</a></li></ol>"%(chapter, html.chapterTitle)
-            nav.content = str(nav.content).replace("</ol>", newNav)
-            chapter = chapter + 1
-
-            while (not html.endOfBook) and (chapter <= toChapter):
-                html = HTMLParser(link=self.link, chapter=chapter)
+            while (not html.Error) and (chapter <= toChapter):
                 # create chapters
                 c = epub.EpubHtml(title=html.chapterTitle, file_name='chap_%d.xhtml' % chapter)
                 c.set_content(u'<html><body><h1>%s</h1>%s</body></html>' % (html.chapterTitle, html.metaData))
@@ -69,16 +68,16 @@ class Ebook():
                 chapter-1, html.chapterTitle, chapter)
                 toc.content = str(toc.content).replace("</navMap>", newChapterTOC)
 
-                print("Chapter %d" % chapter)
+                print(self.title + ": Chapter %d" % chapter)
                 book.add_item(c)
                 # basic spine
                 book.spine.append(c)
                 newNav = "<li><a href=\"chap_%d.xhtml\">%s​</a></li></ol>" % (chapter, html.chapterTitle)
                 nav.content = str(nav.content).replace("</ol>", newNav)
-
                 chapter = chapter + 1
-
+                html = HTMLParser(link=self.link, chapter=chapter)
             epub.write_epub("%s.epub" % (self.ebookName), book)
+            print("Written successfully")
 
         except:
             print("Cannot read Ebook")
@@ -99,9 +98,7 @@ class Ebook():
         book.set_title(html.title)
         if toChapter == 0:
             toChapter = np.inf
-        while chapter <= toChapter:
-            if html.Error:
-                break
+        while (not html.Error) and chapter <= toChapter:
             # create chapters
             c = epub.EpubHtml(title=html.chapterTitle, file_name='chap_%d.xhtml'%chapter)
             c.set_content(u'<html><body><h1>%s</h1>%s</body></html>' % (html.chapterTitle,html.metaData))
@@ -110,9 +107,7 @@ class Ebook():
             book.add_item(c)
             # basic spine
             book.spine.append(c)
-            print("Chapter %d" % chapter)
-            if html.endOfBook:
-                break
+            print(self.title + ": Chapter %d" % chapter)
             chapter = chapter + 1
             html = HTMLParser(link=self.link, chapter=chapter)
 
@@ -120,16 +115,17 @@ class Ebook():
         book.add_item(epub.EpubNcx())
         book.add_item(epub.EpubNav())
         epub.write_epub("%s.epub" % (self.ebookName), book)
+        print("Written successfully")
 
 
 def main():
     fromChapter = 0
     toChapter = 0
-    link = "https://truyenfull.vn/mao-son-troc-quy-nhan/"
+    link = "https://truyenfull.vn/doc-ton-tam-gioi/"
     book = Ebook(link=link)
-    # book.createEbook(toChapter=toChapter, fromChapter=fromChapter)
+    book.createEbook(toChapter=100, fromChapter=52)
     # book.addMoreChapters(toChapter=toChapter)
-    book.run1Hit()
+    # book.run1Hit()
 
 if __name__ == '__main__':
     main()
